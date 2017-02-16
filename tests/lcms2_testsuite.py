@@ -57,6 +57,23 @@ class TestCmsFunctions(unittest.TestCase):
 	def test05_create_xyz_profile(self):
 		self.assertNotEqual(None, lcms2.cmsCreateXYZProfile())
 
+	def test06_open_invalid_profile(self):
+		try:
+			profile = get_filepath('empty.icm')
+			lcms2.cmsOpenProfileFromFile(profile)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+	def test07_open_absent_profile(self):
+		try:
+			profile = get_filepath('xxx.icm')
+			lcms2.cmsOpenProfileFromFile(profile)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+
 
 
 def get_suite():
