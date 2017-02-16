@@ -27,19 +27,35 @@ class TestCmsFunctions(unittest.TestCase):
 
 	def setUp(self):
 		rgb_profile = get_filepath('sRGB.icm')
-		self.inProfile = lcms2.cms_open_profile_from_file(rgb_profile)
-		cmyk_profile = get_filepath('GenericCMYK.icm')
-		self.outProfile = lcms2.cms_open_profile_from_file(cmyk_profile)
-		self.transform = lcms2.cms_create_transform(self.inProfile,
+		self.inProfile = lcms2.cmsOpenProfileFromFile(rgb_profile)
+		cmyk_profile = get_filepath('CMYK.icm')
+		self.outProfile = lcms2.cmsOpenProfileFromFile(cmyk_profile)
+		self.transform = lcms2.cmsCreateTransform(self.inProfile,
 						lcms2.TYPE_RGBA_8, self.outProfile, lcms2.TYPE_CMYK_8,
 						lcms2.INTENT_PERCEPTUAL, lcms2.cmsFLAGS_NOTPRECALC)
-		self.transform2 = lcms2.cms_create_transform(self.inProfile,
+		self.transform2 = lcms2.cmsCreateTransform(self.inProfile,
 						lcms2.TYPE_RGBA_8, self.outProfile, lcms2.TYPE_CMYK_8,
 						lcms2.INTENT_PERCEPTUAL, 0)
 
 
 	def tearDown(self):
 		pass
+
+	def test01_open_profile(self):
+		self.assertNotEqual(None, self.inProfile)
+		self.assertNotEqual(None, self.outProfile)
+
+	def test02_create_srgb_profile(self):
+		self.assertNotEqual(None, lcms2.cmsCreate_sRGBProfile())
+
+	def test03_create_gray_profile(self):
+		self.assertNotEqual(None, lcms2.cmsCreateGrayProfile())
+
+	def test04_create_lab_profile(self):
+		self.assertNotEqual(None, lcms2.cmsCreateLabProfile())
+
+	def test05_create_xyz_profile(self):
+		self.assertNotEqual(None, lcms2.cmsCreateXYZProfile())
 
 
 
