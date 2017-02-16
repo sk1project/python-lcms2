@@ -73,7 +73,78 @@ class TestCmsFunctions(unittest.TestCase):
 			return
 		self.fail()
 
+	def test08_create_transform(self):
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGBA_8, self.outProfile, lcms2.TYPE_CMYK_8))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.outProfile,
+				lcms2.TYPE_CMYK_8, self.inProfile, lcms2.TYPE_RGBA_8))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.outProfile,
+				lcms2.TYPE_CMYK_8, self.inProfile, lcms2.TYPE_RGB_8))
 
+	def test09_create_transform_16b(self):
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_16, self.outProfile, lcms2.TYPE_CMYK_16))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGBA_16, self.outProfile, lcms2.TYPE_CMYK_16))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.outProfile,
+				lcms2.TYPE_CMYK_16, self.inProfile, lcms2.TYPE_RGBA_16))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.outProfile,
+				lcms2.TYPE_CMYK_16, self.inProfile, lcms2.TYPE_RGB_16))
+
+	def test10_create_transform_dbl(self):
+		lab_profile = lcms2.cmsCreateLabProfile()
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_16, lab_profile, lcms2.TYPE_Lab_DBL))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.outProfile,
+				lcms2.TYPE_CMYK_16, lab_profile, lcms2.TYPE_Lab_DBL))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(lab_profile,
+				lcms2.TYPE_Lab_DBL, self.inProfile, lcms2.TYPE_RGB_16))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(lab_profile,
+				lcms2.TYPE_Lab_DBL, self.outProfile, lcms2.TYPE_CMYK_16))
+
+	def test11_create_transform_with_custom_intent(self):
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_PERCEPTUAL))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_RELATIVE_COLORIMETRIC))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_SATURATION))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_ABSOLUTE_COLORIMETRIC))
+
+	def test12_create_transform_with_custom_flags(self):
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_PERCEPTUAL,
+				lcms2.cmsFLAGS_NOTPRECALC | lcms2.cmsFLAGS_GAMUTCHECK))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_PERCEPTUAL,
+				lcms2.cmsFLAGS_PRESERVEBLACK | lcms2.cmsFLAGS_BLACKPOINTCOMPENSATION))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_PERCEPTUAL,
+				lcms2.cmsFLAGS_NOTPRECALC | lcms2.cmsFLAGS_HIGHRESPRECALC))
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8,
+				lcms2.INTENT_PERCEPTUAL,
+				lcms2.cmsFLAGS_NOTPRECALC | lcms2.cmsFLAGS_LOWRESPRECALC))
+
+	def test13_create_transform_with_invalid_intent(self):
+		self.assertNotEqual(None, lcms2.cmsCreateTransform(self.inProfile,
+				lcms2.TYPE_RGB_8, self.outProfile, lcms2.TYPE_CMYK_8, 3))
+		try:
+			lcms2.cmsCreateTransform(self.inProfile, lcms2.TYPE_RGB_8,
+									self.outProfile, lcms2.TYPE_CMYK_8, 4)
+		except lcms2.CmsError:
+			return
+		self.fail()
 
 
 def get_suite():
