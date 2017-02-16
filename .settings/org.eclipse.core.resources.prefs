@@ -1,2 +1,4 @@
 eclipse.preferences.version=1
+encoding//src/lcms2/__init__.py=utf-8
+encoding//tests/lcms2_testsuite.py=utf-8
 encoding/setup.py=utf-8
