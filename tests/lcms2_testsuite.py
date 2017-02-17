@@ -146,6 +146,61 @@ class TestCmsFunctions(unittest.TestCase):
 			return
 		self.fail()
 
+	def test14_do_transform_with_null_input(self):
+		rgb = lcms2.COLORB()
+		cmyk = lcms2.COLORB()
+		lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		self.assertNotEqual(0, cmyk[0])
+		self.assertNotEqual(0, cmyk[1])
+		self.assertNotEqual(0, cmyk[2])
+		self.assertNotEqual(0, cmyk[3])
+
+	def test15_do_transform_with_maximum_allowed_input(self):
+		rgb = lcms2.COLORB()
+		cmyk = lcms2.COLORB()
+		rgb[0] = 255
+		rgb[1] = 255
+		rgb[2] = 255
+		lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		self.assertEqual(0, cmyk[0])
+		self.assertEqual(0, cmyk[1])
+		self.assertEqual(0, cmyk[2])
+		self.assertEqual(0, cmyk[3])
+
+	def test16_do_transform_with_intermediate_input(self):
+		rgb = lcms2.COLORB()
+		cmyk = lcms2.COLORB()
+		rgb[0] = 100
+		rgb[1] = 190
+		rgb[2] = 150
+		lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		self.assertNotEqual(0, cmyk[0])
+		self.assertNotEqual(0, cmyk[1])
+		self.assertNotEqual(0, cmyk[2])
+		self.assertNotEqual(0, cmyk[3])
+
+	def test17_do_transform_with_incorrect_input_buffer(self):
+		cmyk = lcms2.COLORB()
+		rgb = 255
+		try:
+			lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+	def test18_do_transform_with_incorrect_output_buffer(self):
+		rgb = lcms2.COLORB()
+		rgb[0] = 255
+		rgb[1] = 255
+		rgb[2] = 255
+		cmyk = 255
+		try:
+			lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+
 
 def get_suite():
 	suite = unittest.TestSuite()
