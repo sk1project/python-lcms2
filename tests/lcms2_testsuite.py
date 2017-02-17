@@ -201,6 +201,23 @@ class TestCmsFunctions(unittest.TestCase):
 		self.fail()
 
 
+	#---Profile info related tests
+
+	def test30_get_profile_name(self):
+		name = lcms2.cmsGetProfileName(self.outProfile)
+		self.assertEqual(name, 'Fogra27L CMYK Coated Press')
+
+	def test31_get_profile_info(self):
+		name = lcms2.cmsGetProfileInfo(self.outProfile)
+		self.assertEqual(name[:15], 'Offset printing')
+
+	def test32_get_profile_copyright(self):
+		name = lcms2.cmsGetProfileCopyright(self.outProfile)
+		if os.name == 'nt':
+			self.assertEqual(name, '')
+		else:
+			self.assertEqual(name, 'Public Domain')
+
 
 def get_suite():
 	suite = unittest.TestSuite()
