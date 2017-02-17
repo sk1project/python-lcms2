@@ -172,7 +172,7 @@ def cmsCreateTransform(inputProfile, inMode,
 
 	return result
 
-def cmsDoTransform(hTransform, inbuff, outbuff, val):
+def cmsDoTransform(hTransform, inbuff, outbuff, val=None):
 	"""
 	Transform color values from inputBuffer to outputBuffer using provided 
 	lcms transform handle.
@@ -185,7 +185,7 @@ def cmsDoTransform(hTransform, inbuff, outbuff, val):
 	"""
 	if type(inbuff) is types.ListType and type(outbuff) is types.ListType and \
 	len(inbuff) == 5 and len(outbuff) == 5 :
-		vals = inbuff[:4].append(outbuff[4])
+		vals = inbuff[:4] + [outbuff[4], ]
 		if inbuff[4] == COLOR_WORD:
 			ret = _lcms2.transformPixel16b(hTransform, *vals)
 		elif inbuff[4] == COLOR_DBL:
