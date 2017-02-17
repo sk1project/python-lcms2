@@ -217,3 +217,32 @@ def cmsCloseProfile(profile):
 	Profile handle will be released automatically.
 	"""
 	pass
+
+def cmsGetProfileName(profile):
+	"""
+	This function is given mainly for building user interfaces.
+	
+	profile - a valid lcms profile handle
+	Returns profile name as an unicode string value.	
+	"""
+	return str(_lcms2.getProfileName(profile).strip().decode('cp1252'))
+
+
+def cmsGetProfileInfo(profile):
+	"""
+	This function is given mainly for building user interfaces.
+	
+	profile - a valid lcms profile handle
+	Returns profile description info as an unicode string value.	
+	"""
+	return str(_lcms2.getProfileInfo(profile).strip().decode('cp1252'))
+
+
+def cmsGetProfileCopyright(profile):
+	"""
+	This function is given mainly for building user interfaces.
+	
+	profile - a valid lcms profile handle
+	Returns profile copyright info as an unicode string value.	
+	"""
+	return str(_lcms2.getProfileInfoCopyright(profile).strip().decode('cp1252'))
