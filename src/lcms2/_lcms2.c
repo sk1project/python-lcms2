@@ -221,6 +221,95 @@ pycms_TransformPixel (PyObject *self, PyObject *args) {
 		result = Py_BuildValue("[iiii]", inbuf[0], inbuf[1], inbuf[2], inbuf[3]);
 	}
 
+	free(inbuf);
+	free(outbuf);
+	free(d_outbuf);
+
+	return result;
+}
+
+static PyObject *
+pycms_TransformPixel16b (PyObject *self, PyObject *args) {
+
+	unsigned short *inbuf=malloc(8);
+	unsigned char *outbuf=malloc(4);
+	double *d_outbuf=malloc(32);
+	int channel1,channel2,channel3,channel4,out_type;
+	void *transform;
+	cmsHTRANSFORM hTransform;
+	PyObject *result;
+
+	if (!PyArg_ParseTuple(args, "Oiiiii", &transform, &channel1,
+			&channel2, &channel3, &channel4, &out_type)) {
+		free(inbuf);
+		free(outbuf);
+		free(d_outbuf);
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	inbuf[0]=(unsigned short)channel1;
+	inbuf[1]=(unsigned short)channel2;
+	inbuf[2]=(unsigned short)channel3;
+	inbuf[3]=(unsigned short)channel4;
+
+	hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(transform);
+
+	if(out_type==COLOR_BYTE){
+		cmsDoTransform(hTransform, inbuf, outbuf, 1);
+		result = Py_BuildValue("[iiii]", outbuf[0], outbuf[1], outbuf[2], outbuf[3]);
+	}else if(out_type==COLOR_DBL){
+		cmsDoTransform(hTransform, inbuf, d_outbuf, 1);
+		result = Py_BuildValue("[dddd]", d_outbuf[0], d_outbuf[1], d_outbuf[2], d_outbuf[3]);
+	}else{
+		cmsDoTransform(hTransform, inbuf, inbuf, 1);
+		result = Py_BuildValue("[iiii]", inbuf[0], inbuf[1], inbuf[2], inbuf[3]);
+	}
+
+	free(inbuf);
+	free(outbuf);
+	free(d_outbuf);
+
+	return result;
+}
+
+static PyObject *
+pycms_TransformPixelDbl (PyObject *self, PyObject *args) {
+
+	double *inbuf=malloc(32);
+	unsigned char *c_outbuf=malloc(4);
+	unsigned short *outbuf=malloc(8);
+	int out_type;
+	void *transform;
+	cmsHTRANSFORM hTransform;
+	PyObject *result;
+
+	if (!PyArg_ParseTuple(args, "Oddddi", &transform, &inbuf[0],
+			&inbuf[1], &inbuf[2], &inbuf[3], &out_type)) {
+		free(inbuf);
+		free(outbuf);
+		free(c_outbuf);
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(transform);
+
+	if(out_type==COLOR_WORD){
+		cmsDoTransform(hTransform, inbuf, outbuf, 1);
+		result = Py_BuildValue("[iiii]", outbuf[0], outbuf[1], outbuf[2], outbuf[3]);
+	}else if(out_type==COLOR_BYTE){
+		cmsDoTransform(hTransform, inbuf, c_outbuf, 1);
+		result = Py_BuildValue("[iiii]", c_outbuf[0], c_outbuf[1], c_outbuf[2], c_outbuf[3]);
+	}else{
+		cmsDoTransform(hTransform, inbuf, inbuf, 1);
+		result = Py_BuildValue("[dddd]", inbuf[0], inbuf[1], inbuf[2], inbuf[3]);
+	}
+
+	free(inbuf);
+	free(outbuf);
+	free(c_outbuf);
+
 	return result;
 }
 
@@ -239,6 +328,8 @@ PyMethodDef pycms_methods[] = {
 	{"createXYZProfile", pycms_CreateXYZProfile, METH_VARARGS},
 	{"buildTransform", pycms_BuildTransform, METH_VARARGS},
 	{"transformPixel", pycms_TransformPixel, METH_VARARGS},
+	{"transformPixel16b", pycms_TransformPixel16b, METH_VARARGS},
+	{"transformPixelDbl", pycms_TransformPixelDbl, METH_VARARGS},
 	{NULL, NULL}
 };
 
