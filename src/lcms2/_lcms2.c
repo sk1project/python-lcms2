@@ -313,6 +313,86 @@ pycms_TransformPixelDbl (PyObject *self, PyObject *args) {
 	return result;
 }
 
+#define BUFFER_SIZE 1000
+
+static PyObject *
+pycms_GetProfileName (PyObject *self, PyObject *args) {
+
+	void *profile;
+	cmsHPROFILE hProfile;
+	char *buffer;
+	PyObject *ret;
+
+	if (!PyArg_ParseTuple(args, "O", &profile)) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	buffer=malloc(BUFFER_SIZE);
+	hProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(profile);
+
+	cmsGetProfileInfoASCII(hProfile,
+			cmsInfoDescription,
+			cmsNoLanguage, cmsNoCountry,
+			buffer, BUFFER_SIZE);
+
+	ret=Py_BuildValue("s", buffer);
+	free(buffer);
+	return ret;
+}
+
+static PyObject *
+pycms_GetProfileInfo (PyObject *self, PyObject *args) {
+
+	void *profile;
+	cmsHPROFILE hProfile;
+	char *buffer;
+	PyObject *ret;
+
+	if (!PyArg_ParseTuple(args, "O", &profile)) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	buffer=malloc(BUFFER_SIZE);
+	hProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(profile);
+
+	cmsGetProfileInfoASCII(hProfile,
+			cmsInfoModel,
+			cmsNoLanguage, cmsNoCountry,
+			buffer, BUFFER_SIZE);
+
+	ret=Py_BuildValue("s", buffer);
+	free(buffer);
+	return ret;
+}
+
+static PyObject *
+pycms_GetProfileInfoCopyright (PyObject *self, PyObject *args) {
+
+	void *profile;
+	cmsHPROFILE hProfile;
+	char *buffer;
+	PyObject *ret;
+
+	if (!PyArg_ParseTuple(args, "O", &profile)) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	buffer=malloc(BUFFER_SIZE);
+	hProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(profile);
+
+	cmsGetProfileInfoASCII(hProfile,
+			cmsInfoCopyright,
+			cmsNoLanguage, cmsNoCountry,
+			buffer, BUFFER_SIZE);
+
+	ret=Py_BuildValue("s", buffer);
+	free(buffer);
+	return ret;
+}
+
 static PyObject *
 pycms_GetVersion (PyObject *self, PyObject *args) {
 	return Py_BuildValue("i",  LCMS_VERSION);
@@ -330,6 +410,9 @@ PyMethodDef pycms_methods[] = {
 	{"transformPixel", pycms_TransformPixel, METH_VARARGS},
 	{"transformPixel16b", pycms_TransformPixel16b, METH_VARARGS},
 	{"transformPixelDbl", pycms_TransformPixelDbl, METH_VARARGS},
+	{"getProfileName", pycms_GetProfileName, METH_VARARGS},
+	{"getProfileInfo", pycms_GetProfileInfo, METH_VARARGS},
+	{"getProfileInfoCopyright", pycms_GetProfileInfoCopyright, METH_VARARGS},
 	{NULL, NULL}
 };
 
