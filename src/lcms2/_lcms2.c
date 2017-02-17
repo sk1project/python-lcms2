@@ -179,59 +179,30 @@ pycms_BuildTransform (PyObject *self, PyObject *args) {
 	return Py_BuildValue("O", PyCObject_FromVoidPtr((void *)hTransform, (void *)cmsDeleteTransform));
 }
 
-static PyObject *
-pycms_BuildProofingTransform (PyObject *self, PyObject *args) {
-
-	char *inMode;
-	char *outMode;
-	int renderingIntent;
-	int proofingIntent;
-	int inFlags;
-	cmsUInt32Number flags;
-	void *inputProfile;
-	void *outputProfile;
-	void *proofingProfile;
-
-	cmsHPROFILE hInputProfile, hOutputProfile, hProofingProfile;
-	cmsHTRANSFORM hTransform;
-
-	if (!PyArg_ParseTuple(args, "OsOsOiii", &inputProfile, &inMode, &outputProfile, &outMode,
-			&proofingProfile, &renderingIntent, &proofingIntent, &inFlags)) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	hInputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(inputProfile);
-	hOutputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(outputProfile);
-	hProofingProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(proofingProfile);
-	flags = (cmsUInt32Number) inFlags;
-
-	hTransform = cmsCreateProofingTransform(hInputProfile, getLCMStype(inMode),
-			hOutputProfile, getLCMStype(outMode), hProofingProfile, renderingIntent, proofingIntent, flags);
-
-	if(hTransform==NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-
-	return Py_BuildValue("O", PyCObject_FromVoidPtr((void *)hTransform, (void *)cmsDeleteTransform));
-}
+#define COLOR_BYTE 0
+#define COLOR_WORD 1
+#define COLOR_DBL 2
 
 static PyObject *
 pycms_TransformPixel (PyObject *self, PyObject *args) {
 
-	unsigned char *inbuf;
-	int channel1,channel2,channel3,channel4;
+	unsigned char *inbuf=malloc(4);
+	unsigned short *outbuf=malloc(8);
+	double *d_outbuf=malloc(32);
+	int channel1,channel2,channel3,channel4,out_type;
 	void *transform;
 	cmsHTRANSFORM hTransform;
 	PyObject *result;
 
-	if (!PyArg_ParseTuple(args, "Oiiii", &transform, &channel1, &channel2, &channel3, &channel4)) {
+	if (!PyArg_ParseTuple(args, "Oiiiii", &transform, &channel1,
+			&channel2, &channel3, &channel4, &out_type)) {
+		free(inbuf);
+		free(outbuf);
+		free(d_outbuf);
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
 
-	inbuf=malloc(4);
 	inbuf[0]=(unsigned char)channel1;
 	inbuf[1]=(unsigned char)channel2;
 	inbuf[2]=(unsigned char)channel3;
@@ -239,42 +210,17 @@ pycms_TransformPixel (PyObject *self, PyObject *args) {
 
 	hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(transform);
 
-	cmsDoTransform(hTransform, inbuf, inbuf, 1);
-
-	result = Py_BuildValue("[iiii]", inbuf[0], inbuf[1], inbuf[2], inbuf[3]);
-	free(inbuf);
-	return result;
-}
-
-
-static PyObject *
-pycms_TransformPixel2 (PyObject *self, PyObject *args) {
-
-	double channel1,channel2,channel3,channel4;
-	unsigned char *inbuf;
-	void *transform;
-	cmsHTRANSFORM hTransform;
-	PyObject *result;
-
-	if (!PyArg_ParseTuple(args, "Odddd", &transform, &channel1, &channel2, &channel3, &channel4)) {
-		Py_INCREF(Py_None);
-		return Py_None;
+	if(out_type==COLOR_WORD){
+		cmsDoTransform(hTransform, inbuf, outbuf, 1);
+		result = Py_BuildValue("[iiii]", outbuf[0], outbuf[1], outbuf[2], outbuf[3]);
+	}else if(out_type==COLOR_DBL){
+		cmsDoTransform(hTransform, inbuf, d_outbuf, 1);
+		result = Py_BuildValue("[dddd]", d_outbuf[0], d_outbuf[1], d_outbuf[2], d_outbuf[3]);
+	}else{
+		cmsDoTransform(hTransform, inbuf, inbuf, 1);
+		result = Py_BuildValue("[iiii]", inbuf[0], inbuf[1], inbuf[2], inbuf[3]);
 	}
 
-	inbuf=malloc(4);
-	inbuf[0]=(unsigned char)(channel1*255);
-	inbuf[1]=(unsigned char)(channel2*255);
-	inbuf[2]=(unsigned char)(channel3*255);
-	inbuf[3]=(unsigned char)(channel4*255);
-
-	hTransform = (cmsHTRANSFORM) PyCObject_AsVoidPtr(transform);
-
-	cmsDoTransform(hTransform, inbuf, inbuf, 1);
-
-	result = Py_BuildValue("(dddd)", (double)inbuf[0]/255, (double)inbuf[1]/255,
-			(double)inbuf[2]/255, (double)inbuf[3]/255);
-
-	free(inbuf);
 	return result;
 }
 
@@ -292,9 +238,7 @@ PyMethodDef pycms_methods[] = {
 	{"createGrayProfile", pycms_CreateGrayProfile, METH_VARARGS},
 	{"createXYZProfile", pycms_CreateXYZProfile, METH_VARARGS},
 	{"buildTransform", pycms_BuildTransform, METH_VARARGS},
-	{"buildProofingTransform", pycms_BuildProofingTransform, METH_VARARGS},
 	{"transformPixel", pycms_TransformPixel, METH_VARARGS},
-	{"transformPixel2", pycms_TransformPixel2, METH_VARARGS},
 	{NULL, NULL}
 };
 
