@@ -36,6 +36,9 @@ class TestCmsFunctions(unittest.TestCase):
 		self.transform2 = lcms2.cmsCreateTransform(self.inProfile,
 						lcms2.TYPE_RGBA_8, self.outProfile, lcms2.TYPE_CMYK_8,
 						lcms2.INTENT_PERCEPTUAL, 0)
+		self.transform_16b = lcms2.cmsCreateTransform(self.inProfile,
+						lcms2.TYPE_RGBA_16, self.outProfile, lcms2.TYPE_CMYK_16,
+						lcms2.INTENT_PERCEPTUAL, lcms2.cmsFLAGS_NOTPRECALC)
 
 
 	def tearDown(self):
@@ -146,6 +149,8 @@ class TestCmsFunctions(unittest.TestCase):
 			return
 		self.fail()
 
+	#---8bit transform tests
+
 	def test14_do_transform_with_null_input(self):
 		rgb = lcms2.COLORB()
 		cmyk = lcms2.COLORB()
@@ -196,6 +201,62 @@ class TestCmsFunctions(unittest.TestCase):
 		cmyk = 255
 		try:
 			lcms2.cmsDoTransform(self.transform, rgb, cmyk)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+	#---16bit transform tests
+
+	def test19_do_transform_16b_with_null_input(self):
+		rgb = lcms2.COLORW()
+		cmyk = lcms2.COLORW()
+		lcms2.cmsDoTransform(self.transform_16b, rgb, cmyk)
+		self.assertNotEqual(0, cmyk[0])
+		self.assertNotEqual(0, cmyk[1])
+		self.assertNotEqual(0, cmyk[2])
+		self.assertNotEqual(0, cmyk[3])
+
+	def test20_do_transform_with_maximum_allowed_input(self):
+		rgb = lcms2.COLORW()
+		cmyk = lcms2.COLORW()
+		rgb[0] = 65535
+		rgb[1] = 65535
+		rgb[2] = 65535
+		lcms2.cmsDoTransform(self.transform_16b, rgb, cmyk)
+		self.assertLess(cmyk[0], 10)
+		self.assertLess(cmyk[1], 10)
+		self.assertLess(cmyk[2], 10)
+		self.assertLess(cmyk[3], 10)
+
+	def test21_do_transform_with_intermediate_input(self):
+		rgb = lcms2.COLORB()
+		cmyk = lcms2.COLORB()
+		rgb[0] = 25535
+		rgb[1] = 35535
+		rgb[2] = 30535
+		lcms2.cmsDoTransform(self.transform_16b, rgb, cmyk)
+		self.assertNotEqual(0, cmyk[0])
+		self.assertNotEqual(0, cmyk[1])
+		self.assertNotEqual(0, cmyk[2])
+		self.assertNotEqual(0, cmyk[3])
+
+	def test22_do_transform_with_incorrect_input_buffer(self):
+		cmyk = lcms2.COLORW()
+		rgb = 255
+		try:
+			lcms2.cmsDoTransform(self.transform_16b, rgb, cmyk)
+		except lcms2.CmsError:
+			return
+		self.fail()
+
+	def test23_do_transform_with_incorrect_output_buffer(self):
+		rgb = lcms2.COLORW()
+		rgb[0] = 65535
+		rgb[1] = 65535
+		rgb[2] = 65535
+		cmyk = 255
+		try:
+			lcms2.cmsDoTransform(self.transform_16b, rgb, cmyk)
 		except lcms2.CmsError:
 			return
 		self.fail()
