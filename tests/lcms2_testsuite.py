@@ -216,7 +216,7 @@ class TestCmsFunctions(unittest.TestCase):
 		self.assertNotEqual(0, cmyk[2])
 		self.assertNotEqual(0, cmyk[3])
 
-	def test20_do_transform_with_maximum_allowed_input(self):
+	def test20_do_transform_16b_with_maximum_allowed_input(self):
 		rgb = lcms2.COLORW()
 		cmyk = lcms2.COLORW()
 		rgb[0] = 65535
@@ -228,7 +228,7 @@ class TestCmsFunctions(unittest.TestCase):
 		self.assertLess(cmyk[2], 10)
 		self.assertLess(cmyk[3], 10)
 
-	def test21_do_transform_with_intermediate_input(self):
+	def test21_do_transform_16b_with_intermediate_input(self):
 		rgb = lcms2.COLORB()
 		cmyk = lcms2.COLORB()
 		rgb[0] = 25535
@@ -240,7 +240,7 @@ class TestCmsFunctions(unittest.TestCase):
 		self.assertNotEqual(0, cmyk[2])
 		self.assertNotEqual(0, cmyk[3])
 
-	def test22_do_transform_with_incorrect_input_buffer(self):
+	def test22_do_transform_16b_with_incorrect_input_buffer(self):
 		cmyk = lcms2.COLORW()
 		rgb = 255
 		try:
@@ -249,7 +249,7 @@ class TestCmsFunctions(unittest.TestCase):
 			return
 		self.fail()
 
-	def test23_do_transform_with_incorrect_output_buffer(self):
+	def test23_do_transform_16b_with_incorrect_output_buffer(self):
 		rgb = lcms2.COLORW()
 		rgb[0] = 65535
 		rgb[1] = 65535
