@@ -1,10 +1,11 @@
 python-lcms2
 
-Simplified Python binding to LittleCMS2 library. This extension was created 
-specially for SwatchBooker project. Nevertheless it can be used as a standalone
-package.
+Simplified Python binding to LittleCMS2 library. 
+This extension was created specially for SwatchBooker project. 
+Nevertheless it can be used as a standalone package.
 
 python-lcms2 emulates python-lcms interfaces for backward compatibility.
+So you just need to replace in your code 'lcms' imports on 'lcms2'.
 
 sK1 Project (http://sk1project.net),
 Copyright (C) 2017 by Igor E. Novikov
