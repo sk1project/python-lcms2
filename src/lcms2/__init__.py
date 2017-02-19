@@ -172,6 +172,46 @@ def cmsCreateTransform(inputProfile, inMode,
 
 	return result
 
+def cmsCreateProofingTransform(inputProfile, inMode,
+						outputProfile, outMode,
+						proofingProfile,
+						renderingIntent=INTENT_PERCEPTUAL,
+						proofingIntent=INTENT_RELATIVE_COLORIMETRIC,
+						flags=cmsFLAGS_SOFTPROOFING):
+	"""
+	Returns a handle to lcms transformation wrapped as a Python object.
+
+	inputProfile - a valid lcms profile handle
+	outputProfile - a valid lcms profile handle
+	proofingProfile - a valid lcms profile handle 
+	inMode - predefined string constant 
+			(i.e. TYPE_RGB_8, TYPE_RGBA_8, TYPE_CMYK_8, etc.) or valid PIL mode		
+	outMode - predefined string constant 
+			(i.e. TYPE_RGB_8, TYPE_RGBA_8, TYPE_CMYK_8, etc.) or valid PIL mode		
+	renderingIntent - integer constant (0-3) specifying rendering intent 
+			for the transform
+	proofingIntent - integer constant (0-3) specifying proofing intent 
+			for the transform
+	flags - a set of predefined lcms flags
+	"""
+
+	if renderingIntent not in (0, 1, 2, 3):
+		raise CmsError, 'renderingIntent must be an integer between 0 and 3'
+
+	if proofingIntent not in (0, 1, 2, 3):
+		raise CmsError, 'proofingIntent must be an integer between 0 and 3'
+
+	result = _lcms2.buildProofingTransform(inputProfile, inMode,
+										outputProfile, outMode,
+										proofingProfile, renderingIntent,
+										proofingIntent, flags)
+
+	if result is None:
+		msg = 'Cannot create requested proofing transform'
+		raise CmsError, msg + ': %s %s' % (inMode, outMode)
+
+	return result
+
 def cmsDoTransform(hTransform, inbuff, outbuff, val=None):
 	"""
 	Transform color values from inputBuffer to outputBuffer using provided 

@@ -179,6 +179,44 @@ pycms_BuildTransform (PyObject *self, PyObject *args) {
 	return Py_BuildValue("O", PyCObject_FromVoidPtr((void *)hTransform, (void *)cmsDeleteTransform));
 }
 
+static PyObject *
+pycms_BuildProofingTransform (PyObject *self, PyObject *args) {
+
+	char *inMode;
+	char *outMode;
+	int renderingIntent;
+	int proofingIntent;
+	int inFlags;
+	cmsUInt32Number flags;
+	void *inputProfile;
+	void *outputProfile;
+	void *proofingProfile;
+
+	cmsHPROFILE hInputProfile, hOutputProfile, hProofingProfile;
+	cmsHTRANSFORM hTransform;
+
+	if (!PyArg_ParseTuple(args, "OsOsOiii", &inputProfile, &inMode, &outputProfile, &outMode,
+			&proofingProfile, &renderingIntent, &proofingIntent, &inFlags)) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	hInputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(inputProfile);
+	hOutputProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(outputProfile);
+	hProofingProfile = (cmsHPROFILE) PyCObject_AsVoidPtr(proofingProfile);
+	flags = (cmsUInt32Number) inFlags;
+
+	hTransform = cmsCreateProofingTransform(hInputProfile, getLCMStype(inMode),
+			hOutputProfile, getLCMStype(outMode), hProofingProfile, renderingIntent, proofingIntent, flags);
+
+	if(hTransform==NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	return Py_BuildValue("O", PyCObject_FromVoidPtr((void *)hTransform, (void *)cmsDeleteTransform));
+}
+
 #define COLOR_BYTE 0
 #define COLOR_WORD 1
 #define COLOR_DBL 2
@@ -407,6 +445,7 @@ PyMethodDef pycms_methods[] = {
 	{"createGrayProfile", pycms_CreateGrayProfile, METH_VARARGS},
 	{"createXYZProfile", pycms_CreateXYZProfile, METH_VARARGS},
 	{"buildTransform", pycms_BuildTransform, METH_VARARGS},
+	{"buildProofingTransform", pycms_BuildProofingTransform, METH_VARARGS},
 	{"transformPixel", pycms_TransformPixel, METH_VARARGS},
 	{"transformPixel16b", pycms_TransformPixel16b, METH_VARARGS},
 	{"transformPixelDbl", pycms_TransformPixelDbl, METH_VARARGS},
