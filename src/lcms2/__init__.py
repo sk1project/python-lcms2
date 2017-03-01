@@ -58,28 +58,28 @@ class CmsError(Exception):
 def COLORB(channel0=0, channel1=0, channel2=0, channel3=0):
 	"""
 	Emulates COLORB object from python-lcms.
-	Actually function returns regular 4-member list.
+	Actually function returns regular 5-member list.
 	"""
 	return [channel0, channel1, channel2, channel3, COLOR_BYTE]
 
 def COLORW(channel0=0, channel1=0, channel2=0, channel3=0):
 	"""
 	Emulates COLORW object from python-lcms.
-	Actually function returns regular 4-member list.
+	Actually function returns regular 5-member list.
 	"""
 	return [channel0, channel1, channel2, channel3, COLOR_WORD]
 
 def cmsCIEXYZ(channel0=0.0, channel1=0.0, channel2=0.0, channel3=0.0):
 	"""
 	Emulates cmsCIEXYZ object from python-lcms.
-	Actually function returns regular 4-member list.
+	Actually function returns regular 5-member list.
 	"""
 	return [channel0, channel1, channel2, channel3, COLOR_DBL]
 
 def cmsCIELab(channel0=0.0, channel1=0.0, channel2=0.0, channel3=0.0):
 	"""
 	Emulates cmsCIELab object from python-lcms.
-	Actually function returns regular 4-member list.
+	Actually function returns regular 5-member list.
 	"""
 	return [channel0, channel1, channel2, channel3, COLOR_DBL]
 
