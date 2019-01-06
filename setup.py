@@ -18,13 +18,14 @@
 # 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from distutils.core import setup, Extension
-import commands
+import subprocess
 
 def get_pkg_libs(pkg_names):
 	libs = []
 	for item in pkg_names:
-		output = commands.getoutput("pkg-config --libs-only-l %s" % item)
-		names = output.replace('-l', '').strip().split(' ')
+		process = subprocess.Popen(["pkg-config", "--libs-only-l", item], stdout=subprocess.PIPE)
+		output, err = process.communicate()
+		names = output.decode().replace('-l', '').strip().split(' ')
 		for name in names:
 			if not name in libs: libs.append(name)
 	return libs

@@ -20,7 +20,7 @@
 
 import os
 import types
-import _lcms2
+from ._lcms2 import *
 
 TYPE_RGB_8 = "RGBA"
 TYPE_RGB_16 = "RGBA;16"
@@ -102,13 +102,13 @@ def cmsOpenProfileFromFile(profileFilename, mode=None):
 	mode - stub parameter for python-lcms compatibility
 	"""
 	if not os.path.isfile(profileFilename):
-		raise CmsError, 'Invalid profile path provided: %s' % profileFilename
+		raise CmsError('Invalid profile path provided: %s' % profileFilename)
 
 	result = _lcms2.openProfile(profileFilename)
 
 	if result is None:
 		msg = 'It seems provided profile is invalid'
-		raise CmsError, msg + ': %s' % profileFilename
+		raise CmsError(msg + ': %s' % profileFilename)
 
 	return result
 
@@ -160,7 +160,7 @@ def cmsCreateTransform(inputProfile, inMode,
 	"""
 
 	if renderingIntent not in (0, 1, 2, 3):
-		raise CmsError, 'renderingIntent must be an integer between 0 and 3'
+		raise CmsError('renderingIntent must be an integer between 0 and 3')
 
 	result = _lcms2.buildTransform(inputProfile, inMode,
 								outputProfile, outMode,
@@ -168,7 +168,7 @@ def cmsCreateTransform(inputProfile, inMode,
 
 	if result is None:
 		msg = 'Cannot create requested transform'
-		raise CmsError, msg + ": %s %s" % (inMode, outMode)
+		raise CmsError(msg + ": %s %s" % (inMode, outMode))
 
 	return result
 
@@ -196,10 +196,10 @@ def cmsCreateProofingTransform(inputProfile, inMode,
 	"""
 
 	if renderingIntent not in (0, 1, 2, 3):
-		raise CmsError, 'renderingIntent must be an integer between 0 and 3'
+		raise CmsError('renderingIntent must be an integer between 0 and 3')
 
 	if proofingIntent not in (0, 1, 2, 3):
-		raise CmsError, 'proofingIntent must be an integer between 0 and 3'
+		raise CmsError('proofingIntent must be an integer between 0 and 3')
 
 	result = _lcms2.buildProofingTransform(inputProfile, inMode,
 										outputProfile, outMode,
@@ -208,7 +208,7 @@ def cmsCreateProofingTransform(inputProfile, inMode,
 
 	if result is None:
 		msg = 'Cannot create requested proofing transform'
-		raise CmsError, msg + ': %s %s' % (inMode, outMode)
+		raise CmsError(msg + ': %s %s' % (inMode, outMode))
 
 	return result
 
@@ -223,7 +223,7 @@ def cmsDoTransform(hTransform, inbuff, outbuff, val=None):
 					transformation results. Can be [0,0,0,0,0].
 	val - stub parameter for python-lcms compatibility			              
 	"""
-	if type(inbuff) is types.ListType and type(outbuff) is types.ListType and \
+	if isinstance(inbuff, (list,))  and isinstance(outbuff, (list,)) and \
 	len(inbuff) == 5 and len(outbuff) == 5 :
 		vals = inbuff[:4] + [outbuff[4], ]
 		if inbuff[4] == COLOR_WORD:
@@ -240,7 +240,7 @@ def cmsDoTransform(hTransform, inbuff, outbuff, val=None):
 
 	else:
 		msg = 'inputBuffer and outputBuffer must be Python 5-member list objects'
-		raise CmsError, msg
+		raise CmsError(msg)
 
 
 def cmsDeleteTransform(transform):
